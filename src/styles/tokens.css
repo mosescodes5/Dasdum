@@ -1,0 +1,74 @@
+:root {
+  /* Color — palette from the DASDUM design file. Stored as bare RGB
+     channels so Tailwind's opacity modifiers (bg-primary-deep/50) work. */
+  --c-primary-deep: 24 56 64;   /* navy  #183840 */
+  --c-primary: 42 98 112;       /* teal  #2A6270 */
+  --c-gold: 210 150 50;         /* tan   #D29632 */
+  --c-gold-light: 230 181 101;  /* #E6B565 */
+  --c-gold-text: 152 102 26;    /* #98661A — tan dark enough for text on light */
+  --c-bg: 255 255 255;
+  --c-soft: 245 239 228;        /* #F5EFE4 */
+  --c-soft2: 232 223 204;       /* #E8DFCC */
+  --c-surface: 255 255 255;
+  --c-text: 24 56 64;           /* ink = navy */
+  --c-muted: 83 101 107;        /* #53656B */
+  --c-hairline: 226 219 203;    /* #E2DBCB */
+
+  --color-primary-deep: rgb(var(--c-primary-deep));
+  --color-primary: rgb(var(--c-primary));
+  --color-gold: rgb(var(--c-gold));
+  --color-gold-light: rgb(var(--c-gold-light));
+  --color-bg: rgb(var(--c-bg));
+  --color-white: #FFFFFF;
+  --color-text: rgb(var(--c-text));
+  --color-muted: rgb(var(--c-muted));
+  --color-hairline: rgb(var(--c-hairline));
+
+  /* Type */
+  --font-display: var(--font-roboto), system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-ui: var(--font-roboto), system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-script: var(--font-script-face), "Brush Script MT", cursive;
+
+  --size-sm: 0.875rem;
+  --size-base: 1rem;
+  --size-lg: 1.125rem;
+  --size-xl: 1.5rem;
+  --size-2xl: 2rem;
+  --size-3xl: 2.75rem;
+  --size-4xl: 3.75rem;
+  --size-5xl: 5rem;
+
+  /* Space (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* Shape */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-full: 999px;
+
+  /* Motion */
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 180ms;
+  --duration-base: 320ms;
+  --duration-slow: 640ms;
+
+  --container-max: 1360px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

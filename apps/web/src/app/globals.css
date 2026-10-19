@@ -1,0 +1,13 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+html, body { @apply min-h-screen bg-ink text-cream font-sans antialiased; }
+.glass { @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl shadow-black/30; }
+.card { @apply bg-[#0f2218]/80 backdrop-blur-md border border-white/10 rounded-2xl p-5; }
+.btn { @apply rounded-xl px-5 py-2.5 font-semibold text-white bg-gradient-to-b from-naija-light to-naija shadow-lg shadow-naija/40 disabled:opacity-40 disabled:cursor-not-allowed; }
+.btn-ghost { @apply rounded-xl px-5 py-2.5 font-medium text-cream bg-white/10 border border-white/15 hover:bg-white/20; }
+.input { @apply w-full rounded-xl bg-black/30 border border-white/15 px-4 py-3 outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/30 placeholder:text-cream/40; }
+
+/* In-game panels: no backdrop blur. Blurring a live 3D canvas behind a panel is what makes phones stutter and drop taps. */
+.hud { @apply bg-[#0c1d14]/85 border border-white/15 rounded-3xl shadow-xl shadow-black/30; }
+.tap { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+@keyframes sheet { from { transform: translateY(18px); opacity: 0 } to { transform: none; opacity: 1 } }
+.sheet { animation: sheet 0.16s ease-out; }

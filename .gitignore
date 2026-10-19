@@ -1,0 +1,23 @@
+node_modules/
+.next/
+out/
+.env
+.env.local
+.env.*.local
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+
+# Local dev upload storage (see UPLOADS_DIR in .env.example) — never commit
+# real uploaded files.
+/uploads/
+
+# Drizzle migration SQL (drizzle/migrations/**), if you generate any with
+# `npm run db:generate`, IS meant to be committed — it's a record of schema
+# changes. db/dasdum_mysql_schema.sql (the phpMyAdmin-importable baseline)
+# is also committed.
+
+# Deploy settings (contain server details)
+deploy.config
+deploy/
+deploy.zip

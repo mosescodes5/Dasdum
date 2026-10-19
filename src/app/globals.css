@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { border-color: var(--color-hairline); }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  /* Storefront headings: heavy uppercase Roboto, as in the design file.
+     :where() keeps this at zero specificity so any utility class
+     (normal-case, font-medium, tracking-normal...) still wins. */
+  :where(.storefront) :is(h1, h2, h3, h4) {
+    text-transform: uppercase;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+  }
+  a { color: inherit; }
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Primary buttons everywhere on the storefront share the design's button
+     typography, so cart/checkout/forms match without touching each one. */
+  .storefront :is(a, button).bg-primary-deep:not(.no-btn-type) {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border-radius: 3px;
+  }
+
+  /* Design-file button: navy fill that wipes to tan on hover, arrow nudges. */
+  .btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1.5px solid rgb(var(--c-primary-deep));
+    background: rgb(var(--c-primary-deep));
+    color: #fff;
+    padding: 0.85rem 1.6rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.3s, border-color 0.3s;
+  }
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgb(var(--c-gold));
+    transform: translateY(101%);
+    transition: transform 0.4s var(--ease-editorial);
+  }
+  .btn:hover::before { transform: translateY(0); }
+  .btn:hover { color: rgb(var(--c-primary-deep)); border-color: rgb(var(--c-gold)); }
+  .btn svg { transition: transform 0.3s var(--ease-editorial); }
+  .btn:hover svg { transform: translateX(4px); }
+  .btn-line { background: transparent; color: rgb(var(--c-text)); border-color: rgb(var(--c-text)); }
+  .btn-line::before { background: rgb(var(--c-primary-deep)); }
+  .btn-line:hover { color: #fff; border-color: rgb(var(--c-primary-deep)); }
+  .btn-tan { background: rgb(var(--c-gold)); border-color: rgb(var(--c-gold)); color: rgb(var(--c-primary-deep)); }
+  .btn-tan::before { background: #fff; }
+  .btn-tan:hover { color: rgb(var(--c-primary-deep)); border-color: #fff; }
+
+  .container-editorial {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .container-editorial { padding-inline: 2.5rem; }
+  }
+  .arc-corner {
+    /* recurring brand device: one softened corner, echoes the logo's arc */
+    border-radius: 0 0 6rem 0;
+  }
+  .arc-corner-inverse {
+    border-radius: 6rem 0 0 0;
+  }
+  .gold-rule {
+    width: 2.5rem;
+    height: 2px;
+    background: var(--color-gold);
+  }
+  .link-underline {
+    /* Gold underline used on every text link site-wide. padding-bottom
+       clears descenders (g, y, p) so the line sits below them instead of
+       cutting through — a plain border-b with no gap, or too small a
+       gap, visibly slices through those letters. */
+    border-bottom: 1px solid var(--color-gold);
+    padding-bottom: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee, .animate-floaty { animation: none !important; }
+}

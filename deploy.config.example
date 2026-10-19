@@ -1,0 +1,6 @@
+# Copy to deploy.config (git-ignored) and fill in.
+SSH_USER=dasdxipa
+SSH_HOST=your-server-hostname-or-ip   # cPanel > SSH Access / Namecheap hosting welcome email
+SSH_PORT=21098                        # Namecheap shared hosting SSH port
+APP_DIR=dasdum                        # the Node.js app's Application root, relative to your home folder
+SITE_URL=https://dasdum.co.uk
