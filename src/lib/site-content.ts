@@ -19,10 +19,9 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     heading: "Rooted in craft. Built for how people actually live.",
     tagline: "Quality first, trend second.",
     paragraphs: [
-      "DASDUM started with a simple frustration: everyday goods that looked either disposable or borrowed from somewhere else. We work with makers across the continent to design pieces that hold their own anywhere — on a shelf in Lagos or a table in London — without performing an idea of “African design” for anyone.",
-      "Every material is chosen for how it ages, not just how it photographs. That’s the whole philosophy: quality first, trend second.",
+      "DASDUM brings thoughtful design and quality-first essentials into everyday life. Every product is selected with care, balancing lasting value, practical use, and a distinct sense of style.",
     ],
-    linkLabel: "Read our story",
+    linkLabel: "Read Our Story",
   },
   whyDasdum: {
     heading: "Why DASDUM",

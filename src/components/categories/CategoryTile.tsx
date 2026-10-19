@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "motion/react";
 import {
   Shirt, ShoppingBag, Home, Droplets, Sparkles, Baby, Gem, Footprints, LayoutGrid, type LucideIcon,
 } from "lucide-react";
@@ -26,10 +25,10 @@ function iconFor(name: string): LucideIcon {
 export function CategoryTile({ name, href, imageUrl }: { name: string; href: string; imageUrl?: string | null }) {
   const Icon = iconFor(name);
   return (
-    <motion.div whileHover={{ y: -6 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }} className="h-full">
+    <div className="h-full transition-transform duration-300 hover:-translate-y-1.5">
       <Link
         href={href}
-        className="group relative flex h-full min-h-[10.5rem] flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-soft p-4 text-center text-[0.74rem] font-medium transition-shadow hover:shadow-[0_12px_28px_rgba(24,56,64,0.18)]"
+        className="group relative flex h-full min-h-[10.5rem] flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-soft p-4 text-center text-[0.74rem] font-medium "
       >
         {imageUrl ? (
           <>
@@ -38,7 +37,7 @@ export function CategoryTile({ name, href, imageUrl }: { name: string; href: str
               src={imageUrl}
               alt=""
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-editorial group-hover:scale-110"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-editorial group-hover:scale-105"
             />
             <span className="absolute inset-0 bg-gradient-to-t from-primary-deep/85 via-primary-deep/10 to-transparent" />
             <span className="absolute inset-x-0 bottom-0 p-3 text-sm font-bold uppercase tracking-wide text-white">{name}</span>
@@ -53,6 +52,6 @@ export function CategoryTile({ name, href, imageUrl }: { name: string; href: str
           </>
         )}
       </Link>
-    </motion.div>
+    </div>
   );
 }

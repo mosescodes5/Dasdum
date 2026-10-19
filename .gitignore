@@ -20,4 +20,6 @@ next-env.d.ts
 # Deploy settings (contain server details)
 deploy.config
 deploy/
-deploy.zip
+
+# Upload-ready zips made by `npm run release`
+release/

@@ -94,7 +94,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
 
               {savedLines.length > 0 && (
                 <div className="mt-10">
-                  <h3 className="text-xs uppercase tracking-wide text-muted">Saved for later</h3>
+                  <h3 className="text-sm text-muted">Saved for later</h3>
                   <ul className="mt-4 space-y-4">
                     {savedLines.map((line) => (
                       <li key={line.id} className="flex items-center gap-4">

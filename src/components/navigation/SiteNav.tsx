@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { Menu, Search, Heart, ShoppingCart, User, X, ArrowRight } from "lucide-react";
 import { useCart } from "@/components/cart/CartContext";
 import { useWishlist } from "@/components/cart/WishlistContext";
@@ -84,13 +83,7 @@ export function SiteNav() {
                 >
                   {link.label}
                 </Link>
-                {active && (
-                  <motion.span
-                    layoutId="nav-underline"
-                    className="absolute left-0 right-0 -bottom-0.5 h-0.5 bg-gold"
-                    transition={{ type: "spring", stiffness: 500, damping: 36 }}
-                  />
-                )}
+                {active && <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-gold" />}
               </li>
             );
           })}
@@ -123,26 +116,17 @@ export function SiteNav() {
             onClick={() => setCartOpen(true)}
             className="relative inline-flex items-center gap-2 hover:text-gold-text transition-colors"
           >
-            {/* Re-keyed on every count change, so the cart wiggles when something is added */}
-            <motion.span
-              key={activeCount}
-              initial={activeCount > 0 ? { rotate: -18, scale: 1.25 } : false}
-              animate={{ rotate: 0, scale: 1 }}
-              transition={{ type: "spring", stiffness: 500, damping: 12 }}
-              className="inline-flex"
-            >
+            {/* Re-keyed on every count change so the CSS "pop" replays when something is added */}
+            <span key={activeCount} className={`inline-flex ${activeCount > 0 ? "animate-pop" : ""}`}>
               <ShoppingCart size={20} />
-            </motion.span>
+            </span>
             {activeCount > 0 && (
-              <motion.span
+              <span
                 key={`b${activeCount}`}
-                initial={{ scale: 1.9 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 600, damping: 14 }}
-                className="absolute -top-2 left-3 grid h-[1.05rem] min-w-[1.05rem] place-items-center rounded-full bg-primary-deep px-1 text-[10px] font-bold text-white"
+                className="absolute -top-2 left-3 grid h-[1.05rem] min-w-[1.05rem] animate-pop place-items-center rounded-full bg-primary-deep px-1 text-[10px] font-bold text-white"
               >
                 {activeCount}
-              </motion.span>
+              </span>
             )}
             <span className="hidden sm:inline text-sm font-bold">{formatMoney(subtotal)}</span>
           </button>
@@ -158,76 +142,44 @@ export function SiteNav() {
         </div>
       </nav>
 
-      <AnimatePresence>
-        {searchOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-hairline bg-soft"
-          >
-            <form onSubmit={submitSearch} className="container-editorial flex items-center gap-3 py-4">
-              <label htmlFor="site-search" className="sr-only">Search products</label>
-              <input
-                id="site-search"
-                ref={searchRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search the collection…"
-                className="flex-1 min-w-0 border border-hairline bg-surface px-4 py-3 text-sm"
-              />
-              <button type="submit" className="btn">
-                Search <ArrowRight size={16} />
-              </button>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {searchOpen && (
+        <div className="animate-fade-up border-t border-hairline bg-soft">
+          <form onSubmit={submitSearch} className="container-editorial flex items-center gap-3 py-4">
+            <label htmlFor="site-search" className="sr-only">Search products</label>
+            <input
+              id="site-search"
+              ref={searchRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search the collection…"
+              className="min-w-0 flex-1 border border-hairline bg-surface px-4 py-3 text-sm"
+            />
+            <button type="submit" className="btn">
+              Search <ArrowRight size={16} />
+            </button>
+          </form>
+        </div>
+      )}
 
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Menu"
-            initial={{ clipPath: "circle(0% at 92% 4%)" }}
-            animate={{ clipPath: "circle(150% at 92% 4%)" }}
-            exit={{ clipPath: "circle(0% at 92% 4%)" }}
-            transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-50 bg-primary-deep text-white md:hidden"
-          >
-            <div className="container-editorial flex items-center justify-between h-[74px]">
-              <span className="font-script text-3xl text-gold">DASDUM</span>
-              <button type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
-                <X size={26} />
-              </button>
-            </div>
-            <motion.ul
-              initial="closed"
-              animate="open"
-              variants={{ open: { transition: { staggerChildren: 0.07, delayChildren: 0.25 } } }}
-              className="container-editorial mt-6 flex flex-col"
-            >
-              {NAV_LINKS.map((link) => (
-                <motion.li
-                  key={link.href}
-                  variants={{ closed: { opacity: 0, x: -30 }, open: { opacity: 1, x: 0 } }}
-                  className="overflow-hidden border-b border-white/10"
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="block py-4 text-3xl font-black uppercase tracking-tight"
-                  >
-                    {link.label}
-                  </Link>
-                </motion.li>
-              ))}
-            </motion.ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {menuOpen && (
+        <div role="dialog" aria-modal="true" aria-label="Menu" className="animate-fade-up fixed inset-0 z-50 bg-primary-deep text-white md:hidden">
+          <div className="container-editorial flex h-[74px] items-center justify-between">
+            <span className="font-script text-3xl text-gold">DASDUM</span>
+            <button type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
+              <X size={26} />
+            </button>
+          </div>
+          <ul className="container-editorial mt-6 flex flex-col">
+            {NAV_LINKS.map((link) => (
+              <li key={link.href} className="border-b border-white/10">
+                <Link href={link.href} onClick={() => setMenuOpen(false)} className="block py-4 text-3xl font-black uppercase tracking-tight">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </header>

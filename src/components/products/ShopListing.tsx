@@ -1,6 +1,5 @@
 import { getPublishedProducts, getCategories, getUnitsSoldByProduct } from "@/lib/db/catalog";
 import { ProductCard } from "@/components/products/ProductCard";
-import { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { FilterPanel } from "@/components/products/FilterPanel";
 import { MobileFilterDrawer } from "@/components/products/MobileFilterDrawer";
 import { SortSelect } from "@/components/products/SortSelect";
@@ -106,7 +105,7 @@ export async function ShopListing({ params }: { params: ShopSearchParams }) {
                 : "No products match those filters — try widening your search."}
             </div>
           ) : (
-            <Stagger
+            <div
               className={
                 view === "grid"
                   ? "mt-8 grid grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-8"
@@ -114,11 +113,9 @@ export async function ShopListing({ params }: { params: ShopSearchParams }) {
               }
             >
               {pageItems.map((p) => (
-                <StaggerItem key={p.id}>
-                  <ProductCard product={p} />
-                </StaggerItem>
+                <ProductCard key={p.id} product={p} />
               ))}
-            </Stagger>
+            </div>
           )}
 
           {totalPages > 1 && (

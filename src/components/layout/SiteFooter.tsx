@@ -56,6 +56,11 @@ export function SiteFooter() {
             <p className="mt-4 max-w-[30ch] text-sm text-white/80">
               Thoughtful goods for modern living, designed with purpose.
             </p>
+            {SITE.contactEmail && (
+              <a href={`mailto:${SITE.contactEmail}`} className="mt-3 block text-sm text-white/80 transition-colors hover:text-gold">
+                {SITE.contactEmail}
+              </a>
+            )}
             {SITE.social.length > 0 && (
               <div className="mt-5 flex gap-4 text-sm">
                 {SITE.social.map((l) => (
@@ -72,7 +77,7 @@ export function SiteFooter() {
               <ul className="grid gap-2.5 text-sm">
                 {col.links.map((l) => (
                   <li key={l.href}>
-                    <Link href={l.href} className="inline-block text-white/80 hover:text-gold hover:translate-x-1 transition-all duration-300">
+                    <Link href={l.href} className="inline-block text-white/80 transition-colors hover:text-gold">
                       {l.label}
                     </Link>
                   </li>

@@ -16,8 +16,8 @@ const HERO_SETTING_KEY = "homepage_hero";
 
 export const DEFAULT_HERO_CONTENT: HeroContent = {
   heading: "Designed with purpose. Made for today.",
-  subheading: "Discover the DASDUM collection — where thoughtful design meets modern African expression.",
-  primaryCta: { label: "Explore Collection", href: "/shop" },
+  subheading: "Thoughtful, quality-first essentials for everyday living.",
+  primaryCta: { label: "Shop Now", href: "/shop" },
   secondaryCta: { label: "Discover DASDUM", href: "/about" },
   imageUrl: null,
 };

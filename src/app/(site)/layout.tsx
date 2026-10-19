@@ -10,7 +10,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
     <MotionProvider>
       <CartProvider>
         <WishlistProvider>
-          {/* .storefront scopes the heavy-uppercase heading style to the shop, not the admin */}
+          {/* .storefront marks the public shop (as opposed to the admin) for styling */}
           <div className="storefront">
             <AnnouncementBar />
             <SiteNav />

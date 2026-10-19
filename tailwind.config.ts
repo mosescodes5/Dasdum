@@ -24,12 +24,12 @@ const config: Config = {
         script: ["var(--font-script-face)", "Brush Script MT", "cursive"],
       },
       keyframes: {
-        marquee: { from: { transform: "translateX(0)" }, to: { transform: "translateX(-50%)" } },
-        floaty: { "0%,100%": { transform: "translateY(0) rotate(-4deg)" }, "50%": { transform: "translateY(-10px) rotate(3deg)" } },
+        pop: { "0%": { transform: "scale(1.5)" }, "100%": { transform: "scale(1)" } },
+        fadeUp: { from: { opacity: "0", transform: "translateY(10px)" }, to: { opacity: "1", transform: "translateY(0)" } },
       },
       animation: {
-        marquee: "marquee 38s linear infinite",
-        floaty: "floaty 6s ease-in-out infinite",
+        pop: "pop 0.35s cubic-bezier(0.22,1,0.36,1)",
+        "fade-up": "fadeUp 0.3s ease-out both",
       },
       maxWidth: { container: "1360px" },
       borderRadius: { sm: "2px", md: "4px" },

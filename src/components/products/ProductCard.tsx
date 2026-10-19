@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
 import { Heart, Eye, ShoppingCart, Check } from "lucide-react";
 import { QuickView } from "@/components/products/QuickView";
 import { useWishlist } from "@/components/cart/WishlistContext";
@@ -52,11 +51,7 @@ export function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <motion.article
-      whileHover={{ y: -4 }}
-      transition={{ type: "spring", stiffness: 300, damping: 24 }}
-      className="group relative overflow-hidden rounded-lg border border-hairline bg-surface transition-shadow duration-300 hover:shadow-[0_14px_32px_-12px_rgba(24,56,64,0.3)]"
-    >
+    <article className="group relative overflow-hidden rounded-lg border border-hairline bg-surface transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-primary-deep/40">
       <div className="relative aspect-square overflow-hidden bg-soft">
         <Link href={`/product/${product.slug}`} aria-label={product.name} className="absolute inset-0">
           {product.imageUrl ? (
@@ -73,39 +68,24 @@ export function ProductCard({ product }: { product: Product }) {
         </Link>
 
         {onSale ? (
-          <motion.span
-            initial={{ scale: 0, rotate: -20 }}
-            whileInView={{ scale: 1, rotate: 0 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring", stiffness: 300, damping: 14, delay: 0.2 }}
-            className="absolute left-3 top-3 rounded-full bg-primary-deep px-2.5 py-0.5 text-[0.68rem] font-bold text-white"
-          >
+          <span className="absolute left-3 top-3 rounded-full bg-primary-deep px-2.5 py-0.5 text-[0.68rem] font-bold text-white">
             -{percentOff}%
-          </motion.span>
+          </span>
         ) : product.badge ? (
           <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-0.5 text-[0.68rem] font-bold text-primary-deep">
             {product.badge}
           </span>
         ) : null}
 
-        <motion.button
-          whileTap={{ scale: 0.8 }}
+        <button
           aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={wishlisted}
           type="button"
           onClick={() => toggle({ productId: product.id, slug: product.slug, name: product.name })}
           className="absolute right-3 top-3 rounded-full bg-surface/90 p-2 transition-colors hover:bg-surface"
         >
-          <motion.span
-            key={String(wishlisted)}
-            initial={wishlisted ? { scale: 0.3 } : false}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 12 }}
-            className="block"
-          >
-            <Heart size={16} className={wishlisted ? "fill-gold text-gold" : "text-primary-deep"} />
-          </motion.span>
-        </motion.button>
+          <Heart size={16} className={wishlisted ? "fill-gold text-gold" : "text-primary-deep"} />
+        </button>
 
         {/* Always visible on touch screens (no hover there), slides in on hover on desktop */}
         <button
@@ -135,32 +115,21 @@ export function ProductCard({ product }: { product: Product }) {
           type="button"
           disabled={!inStock}
           onClick={handleAdd}
-          className="relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-[3px] border border-hairline py-2.5 text-[0.7rem] font-bold uppercase tracking-[0.08em] transition-colors hover:border-primary-deep hover:bg-primary-deep hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-text"
+          className="flex w-full items-center justify-center gap-2 rounded-[3px] border border-hairline py-2.5 text-[0.7rem] font-bold uppercase tracking-[0.08em] transition-colors hover:border-primary-deep hover:bg-primary-deep hover:text-white disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-text"
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={justAdded ? "added" : "idle"}
-              initial={{ y: 14, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -14, opacity: 0 }}
-              transition={{ duration: 0.18 }}
-              className="inline-flex items-center gap-2"
-            >
-              {!inStock ? (
-                "Out of stock"
-              ) : justAdded ? (
-                <>
-                  <Check size={15} /> Added
-                </>
-              ) : (
-                <>
-                  <ShoppingCart size={15} /> Add to cart
-                </>
-              )}
-            </motion.span>
-          </AnimatePresence>
+          {!inStock ? (
+            "Out of stock"
+          ) : justAdded ? (
+            <>
+              <Check size={15} /> Added
+            </>
+          ) : (
+            <>
+              <ShoppingCart size={15} /> Add to cart
+            </>
+          )}
         </button>
       </div>
-    </motion.article>
+    </article>
   );
 }

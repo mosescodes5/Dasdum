@@ -1,36 +1,49 @@
 import { formatMoney } from "@/lib/currency";
 
-// Sends transactional email via Resend's REST API (no SDK dependency,
-// same pattern as src/lib/stripe.ts). Why Resend and not your cPanel
-// mailbox: a shared-hosting IP has no sending reputation of its own, so
-// order confirmations sent through it are much more likely to land in
-// spam — a dedicated provider keeps deliverability out of that risk.
-// See README.md's "Order and contact emails" section for setup.
+// Sends email through your cPanel mailbox over SMTP (nodemailer) — no
+// third-party email service needed. Create a mailbox such as
+// orders@dasdum.co.uk in cPanel → Email Accounts, and put its details in
+// SMTP_HOST / SMTP_USER / SMTP_PASSWORD (see .env.example and the README).
 //
-// Deliberately soft-fails: a missing key or a failed send is logged, not
-// thrown, so a broken email never breaks a checkout or a webhook. Email
-// is a nice-to-have on top of the order record in the database, not a
-// dependency the site requires to function.
-export async function sendEmail(params: { to: string; subject: string; html: string }): Promise<boolean> {
-  const apiKey = process.env.EMAIL_API_KEY;
-  const from = process.env.EMAIL_FROM;
-  if (!apiKey || !from) {
-    console.warn("Email not sent (EMAIL_API_KEY/EMAIL_FROM not set):", params.subject, "->", params.to);
+// Deliberately soft-fails: unconfigured SMTP or a failed send is logged, not
+// thrown, so a broken email never breaks a checkout or a webhook. Email is a
+// nice-to-have on top of the order record in the database, not a dependency
+// the site requires to function.
+import nodemailer, { type Transporter } from "nodemailer";
+
+let transport: Transporter | null = null;
+
+function getTransport(): Transporter | null {
+  if (transport) return transport;
+  const host = process.env.SMTP_HOST?.trim();
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASSWORD;
+  if (!host || !user || !pass) return null;
+  const port = Number(process.env.SMTP_PORT) || 465;
+  transport = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465, // 465 = TLS from the start; 587 upgrades with STARTTLS
+    auth: { user, pass },
+    // Don't leave a checkout webhook hanging on a slow mail server.
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
+  });
+  return transport;
+}
+
+export async function sendEmail(params: { to: string; subject: string; html: string; replyTo?: string }): Promise<boolean> {
+  const mailer = getTransport();
+  if (!mailer) {
+    console.warn("Email not sent (SMTP_HOST/SMTP_USER/SMTP_PASSWORD not set):", params.subject, "->", params.to);
     return false;
   }
+  // Most mail servers only accept a From address that belongs to the
+  // mailbox you log in with, so default to exactly that.
+  const from = process.env.EMAIL_FROM?.trim() || `DASDUM <${process.env.SMTP_USER}>`;
   try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ from, to: params.to, subject: params.subject, html: params.html }),
-    });
-    if (!res.ok) {
-      console.error("Email send failed:", res.status, await res.text().catch(() => ""));
-      return false;
-    }
+    await mailer.sendMail({ from, to: params.to, subject: params.subject, html: params.html, replyTo: params.replyTo });
     return true;
   } catch (err) {
     console.error("Email send failed:", err);
@@ -142,6 +155,6 @@ export function contactNotificationEmail(data: { name: string; email: string; su
 export function newsletterSignupEmail(email: string): string {
   return emailShell(
     "New newsletter signup",
-    `<p style="font-size: 14px;">${escapeHtml(email)} asked to join the mailing list.</p>`
+    `<p style="font-size: 14px;">${escapeHtml(email)} asked to be added to the mailing list.</p>`
   );
 }

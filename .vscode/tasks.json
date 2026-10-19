@@ -1,0 +1,42 @@
+{
+  // Run any of these with: Terminal → Run Task…  (or press Ctrl+Shift+B for the release)
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Release: install + build + deploy zip",
+      "detail": "Makes release/dasdum-deploy-….zip, ready to upload to cPanel",
+      "type": "shell",
+      "command": "npm run release",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Release (fast: skip install)",
+      "detail": "Same, but reuses node_modules — use when only the code changed",
+      "type": "shell",
+      "command": "npm run release -- --fast",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev server",
+      "detail": "Runs the site at http://localhost:3000",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Check for errors (TypeScript)",
+      "detail": "Fast check before releasing",
+      "type": "shell",
+      "command": "npx tsc --noEmit",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": ["$tsc"]
+    }
+  ]
+}

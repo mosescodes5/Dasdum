@@ -42,10 +42,7 @@ export function ImageGallery({ images = [], count = 4 }: { images?: string[]; co
             style={{ cursor: "zoom-in" }}
           />
         ) : (
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary-deep/25 transition-transform duration-500 ease-editorial group-hover:scale-110"
-            style={{ cursor: "zoom-in" }}
-          />
+          <div className="absolute inset-0 bg-soft2" />
         )}
       </div>
     </div>

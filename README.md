@@ -42,7 +42,7 @@ npm run prepare-deploy
    - in the Node.js app screen under **Environment variables**, or
    - in a `.env` file inside the app root (`app.js` loads it). Start from `.env.example`.
 
-   Required: `DB_HOST` (`localhost`), `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `UPLOADS_DIR`, `AUTH_SECRET` (generate with `openssl rand -base64 32`), `NEXT_PUBLIC_SITE_URL`, plus `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (see [Payments](#payments-stripe)) and `EMAIL_API_KEY` if used.
+   Required: `DB_HOST` (`localhost`), `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `UPLOADS_DIR`, `AUTH_SECRET` (generate with `openssl rand -base64 32`), `NEXT_PUBLIC_SITE_URL`, plus `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (see [Payments](#payments-stripe)) and the `SMTP_*` lines if you want email (see [Order and contact emails](#order-and-contact-emails)).
 5. Click **Restart** on the app.
 
 To redeploy: rebuild locally, run `prepare-deploy`, upload/extract over the old files (never touches `UPLOADS_DIR`), then Restart.
@@ -114,36 +114,44 @@ Admins can add images two ways, both on the product (and blog cover) edit screen
 
 Not included yet: coupons and tax. Order confirmation emails are covered in the next section.
 
-## Order and contact emails (Resend)
+## Automated releases (VS Code + GitHub Copilot)
 
-### Testing payments (no real money)
-
-1. Use **test** keys: in Stripe turn on "Test mode", copy `sk_test_...` into `STRIPE_SECRET_KEY`. Checkout then shows a "Test mode" notice (it disappears on live keys).
-2. Create a **test-mode** webhook endpoint (same URL and events as above) and put *its* `whsec_...` in `STRIPE_WEBHOOK_SECRET`. Test and live mode have separate endpoints and secrets.
-3. Place an order and pay with `4242 4242 4242 4242` (any future expiry, any CVC). Other useful cards: `4000 0000 0000 9995` (declined, insufficient funds), `4000 0025 0000 3155` (asks for 3-D Secure).
-4. Check: admin → Orders shows the order **paid**, stock went down, and the confirmation emails arrived.
-5. Refund it in the Stripe dashboard (test mode) → the order should flip to **refunded**.
-
-**Testing on your own computer** (`npm run dev`): Stripe can't reach `localhost`, so either use the [Stripe CLI](https://stripe.com/docs/stripe-cli) (`stripe listen --forward-to localhost:3000/api/stripe/webhook`, which prints a `whsec_...` to use), or skip Stripe entirely and send signed fake events yourself:
+One command turns your source code into a zip you can upload to cPanel:
 
 ```
-npm run test:stripe -- paid    --order <orderId> --amount <grand total in pence>
-npm run test:stripe -- refund  --pi <the payment intent it prints> --amount <same amount>
-npm run test:stripe -- expired --order <orderId>
+npm run release          # install + build + deploy folder + zip
+npm run release -- --fast   # same, skipping the install (code-only changes)
 ```
 
-The order's `<orderId>` is its `id` in the database (phpMyAdmin → `order` table). The script refuses to target a non-local URL unless you add `--yes`, and it moves no money. Sending a wrong `--amount` is a good test too: the site should leave the order pending.
+It first checks your `.env` (and stops with a plain message if something is missing or `NEXT_PUBLIC_SITE_URL` isn't your live `https://` address), then builds, assembles `deploy/`, makes sure **no `.env` is inside**, and writes `release/dasdum-deploy-<date>.zip`. Only the 5 newest zips are kept.
 
-Two things get emailed: an order confirmation to the customer plus a "new order" notice to you, both the moment Stripe confirms payment; and a copy of every contact-form message, to you. Nothing is emailed from your own cPanel mailbox — a shared hosting server has no sending reputation of its own, so transactional mail sent that way is much more likely to land in spam. [Resend](https://resend.com) is a dedicated email-sending service with a free tier (3,000 emails/month, 100/day at the time of writing — check their current pricing page) built for exactly this.
+**In VS Code**
+- Press **Ctrl+Shift+B** (Cmd+Shift+B on Mac) to run the release, or **Terminal → Run Task…** for the other tasks (fast release, dev server, error check). They're defined in `.vscode/tasks.json`.
+- **With Copilot:** open Copilot Chat, switch to **Agent** mode, and type `/release`. It type-checks, runs the release, and if something fails it reads the *first* error, fixes it and retries — then gives you the upload steps. (The prompt is `.github/prompts/release.prompt.md`.) Copilot already knows how this project is built and its rules from `.github/copilot-instructions.md`.
+- If a release fails and you're not sure why, paste the first red error into Copilot Chat.
 
-1. Sign up at resend.com, then **Domains** → **Add Domain** → `dasdum.co.uk`.
-2. Resend shows 2–3 DNS records (SPF, DKIM, and usually a tracking CNAME). Add them in Namecheap under **Advanced DNS** for dasdum.co.uk, exactly as shown — don't change the type or host Resend gives you. Verification can take a few minutes up to a few hours.
-3. Once it shows **Verified**, go to **API Keys** → **Create API Key** → copy it into `EMAIL_API_KEY`.
-4. Set `EMAIL_FROM` to an address at your verified domain, e.g. `DASDUM <orders@dasdum.co.uk>` — it doesn't need to be a real mailbox, Resend only needs to send *from* it.
-5. Set `ADMIN_NOTIFICATION_EMAIL` to wherever you want order and contact-form alerts sent — this can be any inbox you already check (Gmail, your cPanel mailbox, anything).
-6. Restart the app.
+**Then upload (still manual, ~1 minute):** cPanel → File Manager → your app folder → upload the zip → Extract over the old files → Setup Node.js App → Restart. Leave the server's `.env` and your uploads folder alone.
 
-Leaving `EMAIL_API_KEY` blank turns email off without breaking anything else — orders still save and Stripe still processes payment, the confirmation email is just skipped (and logged to the error log, so you can see it was skipped rather than silently lost).
+Want the upload automated too? `npm run deploy` (see above) does it over SSH, and needs bash + rsync (on Windows: WSL). A GitHub Actions workflow could build and upload on every push to `main` — ask if you want that set up.
+
+## Order and contact emails
+
+Two things get emailed: an order confirmation to the customer plus a "new order" notice to you, both the moment Stripe confirms payment; and a copy of every contact-form message to you (with Reply-To set to the customer, so hitting Reply answers them). They are sent through **your own cPanel mailbox** over SMTP — no outside email service is needed.
+
+1. cPanel → **Email Accounts** → **Create**, e.g. `orders@dasdum.co.uk`. Pick a strong password.
+2. cPanel → **Email Deliverability** → check `dasdum.co.uk` shows SPF and DKIM as valid (if it offers a **Repair** button, click it). This is what stops order emails landing in spam.
+3. Set these environment variables (Setup Node.js App → Environment variables), then restart the app:
+   - `SMTP_HOST` = `mail.dasdum.co.uk` (the exact "Outgoing Server" shown under the mailbox's **Connect Devices** page)
+   - `SMTP_PORT` = `465` (or `587` if your host says so)
+   - `SMTP_USER` = `orders@dasdum.co.uk` (the full address)
+   - `SMTP_PASSWORD` = the mailbox password
+   - `ADMIN_NOTIFICATION_EMAIL` = where order and contact alerts go (any inbox you check)
+   - `EMAIL_FROM` is optional; leave it blank and mail is sent as `DASDUM <orders@dasdum.co.uk>`.
+4. Place a test order (see [Testing payments](#testing-payments-no-real-money)) and check the confirmation arrives — and check the **spam folder** the first time.
+
+Leaving `SMTP_HOST` blank turns email off without breaking anything else — orders still save and Stripe still processes payment, the email is just skipped and logged to the error log, so you can see it was skipped rather than silently lost.
+
+Good to know: shared hosting caps how many emails a mailbox can send per hour (often 100–500 — ask your host). That is plenty for order confirmations at normal shop volumes. If you ever outgrow it, or mail keeps landing in spam, a dedicated sending service such as Resend is a drop-in replacement for the one `sendEmail` function in `src/lib/email.ts`.
 
 ## Deploying updates with one command
 

@@ -9,7 +9,7 @@
  * then zip the contents of ./deploy and upload/extract it into your
  * cPanel Node.js app's "Application root". See README.md.
  */
-import { cpSync, existsSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import { cpSync, existsSync, rmSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 
 const standalone = ".next/standalone";
 if (!existsSync(`${standalone}/server.js`)) {
@@ -19,6 +19,12 @@ if (!existsSync(`${standalone}/server.js`)) {
 
 rmSync("deploy", { recursive: true, force: true });
 cpSync(standalone, "deploy", { recursive: true });
+// Next copies your local .env into the standalone output. It must never be
+// uploaded: app.js would load it on the server and your local settings
+// (database, secrets, localhost URLs) would override the real ones.
+for (const name of readdirSync("deploy")) {
+  if (name.startsWith(".env")) rmSync(`deploy/${name}`, { force: true });
+}
 mkdirSync("deploy/.next", { recursive: true });
 cpSync(".next/static", "deploy/.next/static", { recursive: true });
 if (existsSync("public")) cpSync("public", "deploy/public", { recursive: true });

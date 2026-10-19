@@ -1,10 +1,9 @@
 import { Hero } from "@/components/hero/Hero";
-import { Marquee } from "@/components/layout/Marquee";
 import { CategoryTile } from "@/components/categories/CategoryTile";
 import { ProductCard } from "@/components/products/ProductCard";
 import { Banners } from "@/components/layout/Banners";
 import { StoryValues } from "@/components/layout/StoryValues";
-import { JournalPreview, Newsletter } from "@/components/layout/SocialProof";
+import { Newsletter } from "@/components/layout/SocialProof";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -13,8 +12,6 @@ import {
   getCategories,
   getHeroContent,
   getBrandStoryImageUrl,
-  getBestSellers,
-  getLatestJournalPosts,
 } from "@/lib/db/catalog";
 import { getSiteContent } from "@/lib/site-content";
 import { freeShippingThreshold } from "@/lib/shipping";
@@ -41,17 +38,15 @@ function SectionHeader({ title, href, linkLabel }: { title: string; href: string
   );
 }
 
-// Every section below renders only from real database rows. A section with
-// nothing to show is left out entirely — there is no demo content standing
-// in for it.
+// Layout follows the design file: hero → categories → new arrivals → promo
+// strip → story + values → trust + newsletter. Every section renders only
+// real database content; one with nothing to show is left out entirely.
 export default async function HomePage() {
-  const [products, categories, hero, brandStoryImageUrl, bestSellers, journalPosts, content] = await Promise.all([
+  const [products, categories, hero, brandStoryImageUrl, content] = await Promise.all([
     getPublishedProducts(),
     getCategories(),
     getHeroContent(),
     getBrandStoryImageUrl(),
-    getBestSellers(4),
-    getLatestJournalPosts(3),
     getSiteContent(),
   ]);
   const featured = products.slice(0, 4); // newest first
@@ -66,7 +61,6 @@ export default async function HomePage() {
         tagline={content.brandStory.tagline}
         freeShippingText={threshold ? `On orders over ${formatMoney(threshold)}` : null}
       />
-      <Marquee items={content.whyDasdum.pillars.map((p) => p.title)} />
 
       {categories.length > 0 && (
         <section className="py-10">
@@ -108,25 +102,7 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      {bestSellers.length > 0 && (
-        <section className="py-8">
-          <div className="container-editorial">
-            <Reveal>
-              <SectionHeader title="Best sellers" href="/shop?sort=bestselling" linkLabel="Shop best sellers" />
-            </Reveal>
-            <Stagger className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {bestSellers.map((p) => (
-                <StaggerItem key={p.id}>
-                  <ProductCard product={p} />
-                </StaggerItem>
-              ))}
-            </Stagger>
-          </div>
-        </section>
-      )}
-
       <StoryValues content={content} imageUrl={brandStoryImageUrl} />
-      <JournalPreview posts={journalPosts} />
       <Newsletter />
     </>
   );

@@ -15,6 +15,7 @@ export async function POST(request: Request) {
       to,
       subject: `Contact form: ${parsed.data.subject}`,
       html: contactNotificationEmail(parsed.data),
+      replyTo: parsed.data.email, // hitting Reply in your inbox answers the customer
     });
   } else {
     // Nowhere configured to send it — at least keep it in the server log

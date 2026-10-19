@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { SiteContent } from "@/lib/site-content";
-import { Reveal, Stagger, StaggerItem, ParallaxImage } from "@/components/motion/Reveal";
+import { Reveal, Stagger, StaggerItem } from "@/components/motion/Reveal";
 
 /** Brand story + the five values, from the design. All wording comes from
  * Site Content (admin-editable); the photo from Site Images. */
@@ -12,7 +12,10 @@ export function StoryValues({ content, imageUrl }: { content: SiteContent; image
       <div className="container-editorial">
         {imageUrl && (
           <Reveal className="mb-12">
-            <ParallaxImage src={imageUrl} amount={9} className="aspect-[16/8] rounded-lg bg-primary-deep" />
+            <div className="relative aspect-[16/8] overflow-hidden rounded-lg bg-primary-deep">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={imageUrl} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+            </div>
           </Reveal>
         )}
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
