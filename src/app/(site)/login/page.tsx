@@ -37,7 +37,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container-editorial max-w-sm py-20">
+    <div className="anim-rise container-editorial max-w-sm py-20">
       <h1 className="font-display text-3xl text-primary-deep">Sign in</h1>
       <p className="mt-2 text-sm text-muted">Welcome back to DASDUM.</p>
 

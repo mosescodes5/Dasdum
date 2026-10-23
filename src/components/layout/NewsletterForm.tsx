@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { Check } from "lucide-react";
 
 export function NewsletterForm() {
@@ -33,7 +33,7 @@ export function NewsletterForm() {
     <div className="mt-3">
       <AnimatePresence mode="wait" initial={false}>
         {status === "done" ? (
-          <motion.p
+          <m.p
             key="done"
             role="status"
             initial={{ opacity: 0, scale: 0.9, y: 8 }}
@@ -45,9 +45,9 @@ export function NewsletterForm() {
               <Check size={14} strokeWidth={3} />
             </span>
             You&rsquo;re in. Watch your inbox for new arrivals.
-          </motion.p>
+          </m.p>
         ) : (
-          <motion.form key="form" onSubmit={onSubmit} noValidate exit={{ opacity: 0, y: -8 }} className="flex">
+          <m.form key="form" onSubmit={onSubmit} noValidate exit={{ opacity: 0, y: -8 }} className="flex">
             <label htmlFor="newsletter-email" className="sr-only">Email address</label>
             <input
               id="newsletter-email"
@@ -65,7 +65,7 @@ export function NewsletterForm() {
             <button type="submit" disabled={status === "sending"} className="btn !rounded-l-none disabled:opacity-60">
               {status === "sending" ? "Sending…" : "Subscribe"}
             </button>
-          </motion.form>
+          </m.form>
         )}
       </AnimatePresence>
       <p role="status" className="mt-1.5 min-h-[1.3rem] text-[0.82rem] font-medium text-red-700">

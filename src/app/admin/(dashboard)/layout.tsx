@@ -31,6 +31,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
       <AdminSidebar
         showSiteImages={isDeveloperEmail(admin.email)}
         showSiteContent={isDeveloperEmail(admin.email)}
+        showTeam={admin.role === "super_admin"}
       />
       <div className="flex-1 flex flex-col min-w-0">
         <AdminTopbar adminName={admin.name} role={admin.role} />

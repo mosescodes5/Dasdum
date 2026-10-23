@@ -58,7 +58,7 @@ export default async function BlogPostPage({
   };
 
   return (
-    <article className="container-editorial py-16 max-w-2xl">
+    <article className="container-editorial anim-rise py-16 max-w-2xl">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="flex items-center gap-2 text-xs text-muted">
@@ -75,7 +75,7 @@ export default async function BlogPostPage({
       {post.coverUrl && (
         <div className="mt-8 aspect-[16/9] overflow-hidden bg-primary/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={post.coverUrl} alt="" className="h-full w-full object-cover" />
+          <img src={post.coverUrl} alt="" decoding="async" fetchPriority="high" className="h-full w-full object-cover" />
         </div>
       )}
 

@@ -6,9 +6,10 @@ import { verifyStripeSignature } from "@/lib/stripe";
 import { sendEmail, orderConfirmationEmail, adminOrderNotificationEmail, escapeHtml } from "@/lib/email";
 import { stripeCurrency } from "@/lib/currency";
 
+import { clearsCache } from "@/lib/cache";
 // Stripe calls this after a payment. It is the ONLY place an order is
 // marked paid — never trust the browser being redirected to the success page.
-export async function POST(request: Request) {
+async function POST_handler(request: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret) return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
 
@@ -153,3 +154,5 @@ async function handleChargeRefunded(charge: any) {
     })
     .where(eq(order.id, target.id));
 }
+
+export const POST = clearsCache(POST_handler);

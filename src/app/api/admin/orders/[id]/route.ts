@@ -6,6 +6,7 @@ import { order, orderItem } from "@/lib/db/schema";
 import { requireAdmin } from "@/lib/auth/rbac";
 import { logAdminAction } from "@/lib/auth/audit";
 
+import { clearsCache } from "@/lib/cache";
 const statusSchema = z.object({
   fulfillmentStatus: z
     .enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded"])
@@ -27,7 +28,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return NextResponse.json({ order: row, items });
 }
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function PATCH_handler(request: Request, { params }: { params: Promise<{ id: string }> }) {
   let session;
   try {
     session = await requireAdmin("support"); // support staff can update fulfillment status
@@ -61,3 +62,5 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = clearsCache(PATCH_handler);

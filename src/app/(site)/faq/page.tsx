@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/site";
 
+import { PageHeader } from "@/components/shared/PageHeader";
 export const metadata: Metadata = {
   title: "FAQ",
   description: "Answers to common questions about shipping, returns, and orders at DASDUM.",
@@ -53,18 +54,17 @@ const FAQS: { id: string; question: string; answer: string }[] = [
 
 export default function FaqPage() {
   return (
-    <div className="container-editorial py-16 max-w-2xl">
-      <span className="gold-rule block mb-5" />
-      <h1 className="font-display text-4xl text-primary-deep">Frequently Asked Questions</h1>
-
-      <div className="mt-10 divide-y divide-hairline border-t border-b border-hairline">
+    <>
+    <PageHeader eyebrow="Help" title="Frequently Asked Questions" width="2xl" />
+    <div className="container-editorial py-12 max-w-2xl">
+      <div className="anim-rise divide-y divide-hairline border-t border-b border-hairline">
         {FAQS.map((faq) => (
           <details key={faq.id} id={faq.id} className="group py-5">
-            <summary className="flex items-center justify-between cursor-pointer list-none font-medium text-primary-deep">
+            <summary className="flex cursor-pointer list-none items-center justify-between font-medium text-primary-deep transition-colors hover:text-gold-text">
               {faq.question}
-              <span className="ml-4 shrink-0 text-gold transition-transform group-open:rotate-45 text-xl leading-none">+</span>
+              <span className="ml-4 shrink-0 text-gold transition-transform duration-300 group-open:rotate-45 text-xl leading-none">+</span>
             </summary>
-            <p className="mt-3 text-sm text-muted leading-relaxed">{faq.answer}</p>
+            <p className="anim-rise mt-3 text-sm text-muted leading-relaxed">{faq.answer}</p>
           </details>
         ))}
       </div>
@@ -77,5 +77,6 @@ export default function FaqPage() {
         .
       </p>
     </div>
+    </>
   );
 }

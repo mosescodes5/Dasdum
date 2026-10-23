@@ -37,7 +37,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="container-editorial max-w-sm py-20">
+    <div className="anim-rise container-editorial max-w-sm py-20">
       <h1 className="font-display text-3xl text-primary-deep">Create an account</h1>
       <p className="mt-2 text-sm text-muted">Track orders, save addresses, and build a wishlist.</p>
 

@@ -13,6 +13,8 @@ import {
   Image as ImageIcon,
   Wand2,
   FileText,
+  UserCog,
+  KeyRound,
 } from "lucide-react";
 
 const NAV = [
@@ -35,15 +37,28 @@ const SITE_IMAGES_ITEM = { href: "/admin/settings", label: "Site Images", icon: 
 // account (DEVELOPER_EMAIL), matching the API's requireDeveloper() check.
 const SITE_CONTENT_ITEM = { href: "/admin/content", label: "Site Content", icon: FileText };
 
+// Managing who can sign in — Owners only (the API enforces it too).
+const TEAM_ITEM = { href: "/admin/team", label: "Team", icon: UserCog };
+// Everyone can change their own password.
+const ACCOUNT_ITEM = { href: "/admin/account", label: "My account", icon: KeyRound };
+
 export function AdminSidebar({
   showSiteImages = false,
   showSiteContent = false,
+  showTeam = false,
 }: {
   showSiteImages?: boolean;
   showSiteContent?: boolean;
+  showTeam?: boolean;
 }) {
   const pathname = usePathname();
-  const nav = [...NAV, ...(showSiteContent ? [SITE_CONTENT_ITEM] : []), ...(showSiteImages ? [SITE_IMAGES_ITEM] : [])];
+  const nav = [
+    ...NAV,
+    ...(showTeam ? [TEAM_ITEM] : []),
+    ...(showSiteContent ? [SITE_CONTENT_ITEM] : []),
+    ...(showSiteImages ? [SITE_IMAGES_ITEM] : []),
+    ACCOUNT_ITEM,
+  ];
 
   return (
     <aside className="hidden md:flex md:w-60 shrink-0 flex-col bg-[#17313A] text-white/80 min-h-screen">

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Minus, Plus, X } from "lucide-react";
 import { useCart } from "@/components/cart/CartContext";
+import { FreeShippingMeter } from "@/components/cart/FreeShippingMeter";
 import { formatMoney } from "@/lib/currency";
 import { standardShipping, freeShippingThreshold } from "@/lib/shipping";
 
@@ -20,13 +21,10 @@ export default function CartPage() {
 
   if (activeLines.length === 0 && savedLines.length === 0) {
     return (
-      <div className="container-editorial py-24 text-center">
+      <div className="container-editorial anim-rise py-24 text-center">
         <h1 className="font-display text-3xl text-primary-deep">Your cart is empty</h1>
         <p className="mt-3 text-muted">Looks like you haven&rsquo;t added anything yet.</p>
-        <Link
-          href="/shop"
-          className="mt-8 inline-block bg-primary-deep text-bg px-7 py-3.5 text-sm hover:bg-primary transition-colors"
-        >
+        <Link href="/shop" className="btn mt-8">
           Continue Shopping
         </Link>
       </div>
@@ -36,6 +34,7 @@ export default function CartPage() {
   return (
     <div className="container-editorial py-12">
       <h1 className="font-display text-4xl text-primary-deep">Your Cart</h1>
+      <FreeShippingMeter subtotal={subtotal} className="mt-6 max-w-xl" />
 
       <div className="mt-10 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-12">
         <div>
@@ -56,7 +55,7 @@ export default function CartPage() {
                     <div className="flex items-center gap-4">
                       <div className="h-16 w-16 shrink-0 bg-primary/15 overflow-hidden">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {line.imageUrl && <img src={line.imageUrl} alt="" className="h-full w-full object-cover" />}
+                        {line.imageUrl && <img src={line.imageUrl} alt="" decoding="async" className="h-full w-full object-cover" />}
                       </div>
                       <div>
                         <Link href={`/product/${line.slug}`} className="font-medium hover:text-primary">
@@ -123,7 +122,7 @@ export default function CartPage() {
                   <li key={line.id} className="py-4 flex items-center gap-4">
                     <div className="h-14 w-14 shrink-0 bg-primary/10 overflow-hidden">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {line.imageUrl && <img src={line.imageUrl} alt="" className="h-full w-full object-cover" />}
+                      {line.imageUrl && <img src={line.imageUrl} alt="" decoding="async" className="h-full w-full object-cover" />}
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">{line.name}</p>

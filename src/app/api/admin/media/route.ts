@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth/rbac";
 import { saveUpload, buildMediaKey } from "@/lib/uploads";
 import { logAdminAction } from "@/lib/auth/audit";
 
+import { clearsCache } from "@/lib/cache";
 const MAX_SIZE_BYTES = 8 * 1024 * 1024; // 8MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 
@@ -20,7 +21,7 @@ export async function GET() {
   return NextResponse.json({ media: rows });
 }
 
-export async function POST(request: Request) {
+async function POST_handler(request: Request) {
   let session;
   try {
     session = await requireAdmin("editor");
@@ -60,3 +61,5 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true, id, url });
 }
+
+export const POST = clearsCache(POST_handler);

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { ContactReference } from "@/components/shared/ContactReference";
 
+import { PageHeader } from "@/components/shared/PageHeader";
 export const metadata: Metadata = { title: "Terms of Service" };
 
 export default function TermsPage() {
   return (
-    <div className="container-editorial py-16 max-w-2xl">
-      <span className="gold-rule block mb-5" />
-      <h1 className="font-display text-4xl text-primary-deep">Terms of Service</h1>
-      <p className="mt-3 text-sm text-muted">Last updated: September 2026</p>
+    <>
+    <PageHeader eyebrow="Legal" title="Terms of Service" intro="Last updated: September 2026" width="2xl" />
+    <div className="container-editorial py-12 max-w-2xl">
 
       <div className="mt-10 space-y-8 text-sm text-muted leading-relaxed">
         <section>
@@ -93,5 +93,6 @@ export default function TermsPage() {
         </section>
       </div>
     </div>
+    </>
   );
 }

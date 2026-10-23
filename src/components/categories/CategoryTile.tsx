@@ -37,6 +37,7 @@ export function CategoryTile({ name, href, imageUrl }: { name: string; href: str
               src={imageUrl}
               alt=""
               loading="lazy"
+              decoding="async"
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-editorial group-hover:scale-105"
             />
             <span className="absolute inset-0 bg-gradient-to-t from-primary-deep/85 via-primary-deep/10 to-transparent" />

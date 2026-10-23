@@ -114,6 +114,17 @@ Admins can add images two ways, both on the product (and blog cover) edit screen
 
 Not included yet: coupons and tax. Order confirmation emails are covered in the next section.
 
+## Admin team (several people signing in)
+
+**Admin → Team** (Owners only) lets you add people who can sign in to the admin, change their role, reset their password, or disable them. Every change is written to the activity log.
+
+- **Roles:** *Support* views orders, customers and products and updates order fulfilment. *Editor* adds that plus creating/editing products, categories and blog posts and uploading images. *Manager* adds deleting things and disabling customer accounts. *Owner* adds managing the team.
+- **Adding someone:** enter their name, email and role. A random temporary password is shown **once** — pass it to them privately; no email is sent. They change it under **My account** (every team member has that page).
+- **Disabling** is immediate: the person is signed out of everything at once, even if they were mid-session. People are never deleted, so old orders and the log keep a real name.
+- **You (the developer)** are the account whose email matches `DEVELOPER_EMAIL`. Nobody else can disable, demote or reset it. Only you can create or change other **Owners**, so give your client an Owner account and they can manage everyone below them. There is always at least one active Owner, and nobody can disable or demote themselves.
+- Site Images and Site Content stay developer-only and aren't part of any role.
+- The first account is still made with `node scripts/create-admin.mjs` (see above).
+
 ## Automated releases (VS Code + GitHub Copilot)
 
 One command turns your source code into a zip you can upload to cPanel:
@@ -182,3 +193,16 @@ Edit `src/lib/db/schema.ts`, then either `npm run db:generate` (writes SQL to `d
 - Back up regularly: the database (cPanel → Backup) and the `UPLOADS_DIR` folder.
 - `register` has no rate limiting; add some before heavy production traffic.
 - Troubleshooting: Node.js app screen shows the error log path; a 503 usually means a missing env var, wrong DB credentials, or a wrong startup file.
+
+## Making the site fast on cPanel
+
+Shared hosting is the slowest part of the chain, so these matter more than any code change. In order of impact:
+
+1. **Turn on Namecheap's Supersonic CDN (it has a free plan).** In your Namecheap account open *Apps → Supersonic CDN*, pick the free plan and connect your hosting domain. It only works while the domain uses Namecheap's own nameservers (*Domain List → Manage → Nameservers → Namecheap Web Hosting DNS*). Namecheap's setup guide also asks you to redirect the bare domain to `www.` in `.htaccess` — follow their guide exactly, and keep those lines *outside* the block cPanel generates for the Node.js app. Once it's on, images, scripts and fonts are served from a server near each visitor instead of your host. After enabling it, load the site, open the browser's Network tab, and check that files under `/_next/static/` and `/media/` come back with a cache/CDN header; if they don't, ask Namecheap support to cache those two paths. (Cloudflare's free plan is an alternative, but it needs you to move the domain's nameservers away from Namecheap, which also moves email and DNS.)
+2. **Stop cold starts.** Add a free UptimeRobot (or cron-job.org) monitor that requests `https://your-domain/` every 5 minutes. Without it cPanel stops the idle app and the next visitor waits several seconds for it to boot. The app now warms its own cache on startup, so a restart costs far less than before.
+3. **Shrink existing photos** with `scripts/optimize-uploads.mjs` (new uploads are resized in the browser automatically). Aim for hero/banner images under ~300 KB and product photos under ~150 KB.
+4. **Check the host isn't throttling you.** cPanel → *Resource Usage* → look for hits on CPU/Memory/Entry-process limits. If the graph is pinned at the limit, the plan is too small for Next.js; ask the host to raise it or move to a plan with more CPU/RAM.
+5. **Optional:** `DB_POOL_SIZE` (default 5) sets how many database connections the app may hold; leave it unless your host tells you the limit is higher.
+
+Quick self-test (run twice, the second run is the "warm" number — should be well under 1 s):
+`curl -o /dev/null -s -w "first byte: %{time_starttransfer}s\n" https://your-domain/`

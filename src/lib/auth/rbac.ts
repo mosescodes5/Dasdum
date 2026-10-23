@@ -21,10 +21,20 @@ export async function requireAdmin(minRole: AdminRole = "support"): Promise<Sess
   if (!session || session.role !== "admin" || !session.adminRole) {
     throw new Error("UNAUTHORIZED");
   }
-  if (ROLE_RANK[session.adminRole] < ROLE_RANK[minRole]) {
+  // The cookie only proves who logged in, not that they may still act.
+  // Re-read the account on every call so that disabling or demoting a team
+  // member takes effect immediately — not when their 14-day session expires.
+  const db = await getDb();
+  const admin = (
+    await db.select({ role: adminUser.role, isActive: adminUser.isActive }).from(adminUser).where(eq(adminUser.id, session.sub))
+  )[0];
+  if (!admin || !admin.isActive) {
+    throw new Error("UNAUTHORIZED");
+  }
+  if (ROLE_RANK[admin.role] < ROLE_RANK[minRole]) {
     throw new Error("FORBIDDEN");
   }
-  return session;
+  return { ...session, adminRole: admin.role };
 }
 
 /** True for exactly one admin email, set via DEVELOPER_EMAIL — gates

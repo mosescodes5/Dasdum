@@ -11,7 +11,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <CartProvider>
         <WishlistProvider>
           {/* .storefront marks the public shop (as opposed to the admin) for styling */}
-          <div className="storefront">
+          <div id="top" className="storefront">
             <AnnouncementBar />
             <SiteNav />
             <main>{children}</main>

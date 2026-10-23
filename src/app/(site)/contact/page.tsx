@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/components/shared/ContactForm";
 import { SITE } from "@/lib/site";
 
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Reveal } from "@/components/motion/Reveal";
 export const metadata: Metadata = {
   title: "Contact",
   description: "Get in touch with the DASDUM team.",
@@ -9,19 +11,17 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="container-editorial py-16">
-      <div className="max-w-2xl">
-        <span className="gold-rule block mb-5" />
-        <h1 className="font-display text-4xl text-primary-deep">Get in touch</h1>
-        <p className="mt-3 text-muted">
-          Questions about an order, a product, or wholesale? Send us a message and we&rsquo;ll reply within 1–2 business days.
-        </p>
-      </div>
+    <>
+    <PageHeader
+      eyebrow="Contact"
+      title="Get in touch"
+      intro="Questions about an order, a product, or wholesale? Send us a message and we’ll reply within 1–2 business days."
+    />
+    <div className="container-editorial py-12">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-12">
+        <Reveal><ContactForm /></Reveal>
 
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-[1fr_320px] gap-12">
-        <ContactForm />
-
-        <aside className="space-y-6 text-sm">
+        <aside className="anim-rise space-y-6 text-sm" style={{ animationDelay: "0.35s" }}>
           {SITE.contactEmail && (
             <div>
               <h2 className="font-medium text-primary-deep">Email</h2>
@@ -51,5 +51,6 @@ export default function ContactPage() {
         </aside>
       </div>
     </div>
+    </>
   );
 }

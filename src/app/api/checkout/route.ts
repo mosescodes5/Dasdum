@@ -8,6 +8,7 @@ import { shippingFor } from "@/lib/shipping";
 import { stripeRequest } from "@/lib/stripe";
 import { stripeCurrency } from "@/lib/currency";
 
+import { clearsCache } from "@/lib/cache";
 const bodySchema = z.object({
   values: checkoutSchema,
   lines: z
@@ -16,7 +17,7 @@ const bodySchema = z.object({
     .max(50),
 });
 
-export async function POST(request: Request) {
+async function POST_handler(request: Request) {
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid checkout details." }, { status: 400 });
@@ -129,3 +130,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "We couldn't start the payment. Please try again." }, { status: 502 });
   }
 }
+
+export const POST = clearsCache(POST_handler);

@@ -1,5 +1,6 @@
 import { and, eq, asc, desc, sql } from "drizzle-orm";
 import { getDb } from "./client";
+import { cached, clearCache } from "@/lib/cache";
 import { product, category, media, productImage, siteSetting, order, orderItem, blogPost, blogCategory } from "./schema";
 import type { Product } from "@/components/products/ProductCard";
 
@@ -26,7 +27,9 @@ export const DEFAULT_HERO_CONTENT: HeroContent = {
  * Falls back to DEFAULT_HERO_CONTENT (with no image) until an admin saves
  * one — so the homepage never looks broken pre-launch, but also never
  * ships a hardcoded photo. */
-export async function getHeroContent(): Promise<HeroContent> {
+export const getHeroContent = (): Promise<HeroContent> => cached("hero", loadHeroContent);
+
+async function loadHeroContent(): Promise<HeroContent> {
   const db = await getDb();
   const row = (await db.select().from(siteSetting).where(eq(siteSetting.key, HERO_SETTING_KEY)))[0];
   if (!row) return DEFAULT_HERO_CONTENT;
@@ -44,13 +47,16 @@ export async function setHeroContent(content: HeroContent): Promise<void> {
     .insert(siteSetting)
     .values({ key: HERO_SETTING_KEY, value: JSON.stringify(content), updatedAt: now })
     .onDuplicateKeyUpdate({ set: { value: JSON.stringify(content), updatedAt: now } });
+  clearCache();
 }
 
 const BRAND_STORY_SETTING_KEY = "homepage_brand_story";
 
 /** The homepage's "Rooted in craft..." section photo — null until an
  * admin sets one, same no-hardcoded-image approach as the hero. */
-export async function getBrandStoryImageUrl(): Promise<string | null> {
+export const getBrandStoryImageUrl = (): Promise<string | null> => cached("brand-story", loadBrandStoryImageUrl);
+
+async function loadBrandStoryImageUrl(): Promise<string | null> {
   const db = await getDb();
   const row = (await db.select().from(siteSetting).where(eq(siteSetting.key, BRAND_STORY_SETTING_KEY)))[0];
   if (!row) return null;
@@ -69,6 +75,7 @@ export async function setBrandStoryImageUrl(imageUrl: string | null): Promise<vo
     .insert(siteSetting)
     .values({ key: BRAND_STORY_SETTING_KEY, value, updatedAt: now })
     .onDuplicateKeyUpdate({ set: { value, updatedAt: now } });
+  clearCache();
 }
 
 /** Sets one category's photo (shown on the homepage's "Shop by category"
@@ -76,6 +83,7 @@ export async function setBrandStoryImageUrl(imageUrl: string | null): Promise<vo
 export async function setCategoryImage(categoryId: string, mediaId: string | null): Promise<void> {
   const db = await getDb();
   await db.update(category).set({ imageMediaId: mediaId }).where(eq(category.id, categoryId));
+  clearCache();
 }
 
 /** Every category with its photo resolved to a URL, for the developer-only
@@ -163,12 +171,29 @@ const productColumns = {
   imageUrl: media.url,
 } as const;
 
+// Listing pages (home, shop, related products) only need what a card shows.
+// Leaving out the long description and SEO text keeps the query and the
+// data sent to the browser small — the product page loads the full row.
+const listingColumns = {
+  id: product.id,
+  slug: product.slug,
+  name: product.name,
+  shortDescription: product.shortDescription,
+  price: product.price,
+  salePrice: product.salePrice,
+  stock: product.stock,
+  categorySlug: category.slug,
+  categoryName: category.name,
+  imageUrl: media.url,
+} as const;
+
 /** Replaces a product's gallery with the given media ids, in order.
  * Used by the admin create/update product routes — always called with
  * the form's full current gallery, never a partial patch. */
 export async function setProductGallery(productId: string, mediaIds: string[]): Promise<void> {
   const db = await getDb();
   await db.delete(productImage).where(eq(productImage.productId, productId));
+  clearCache();
   if (mediaIds.length === 0) return;
   await db.insert(productImage).values(
     mediaIds.map((mediaId, i) => ({
@@ -196,9 +221,11 @@ export async function getProductGallery(productId: string): Promise<{ id: string
 /** Every category, in the admin's chosen order. Feeds the homepage's
  * "Shop by category" section, the category listing page and the shop's
  * filter sidebar. Empty array on a fresh database. */
-export async function getCategories(): Promise<
-  { name: string; slug: string; description: string | null; href: string; imageUrl: string | null }[]
-> {
+export const getCategories = (): Promise<CategoryListItem[]> => cached("categories", loadCategories);
+
+type CategoryListItem = { name: string; slug: string; description: string | null; href: string; imageUrl: string | null };
+
+async function loadCategories(): Promise<CategoryListItem[]> {
   const db = await getDb();
   const rows = await db
     .select({
@@ -244,19 +271,23 @@ export async function getOwnOrderWithItems(orderId: string, email: string) {
   return { order: row, items };
 }
 
-/** All published products, newest first. Empty array if none exist yet
- * (e.g. a fresh database). */
-export async function getPublishedProducts(): Promise<StorefrontProduct[]> {
+/** All published products, newest first, in the lean card shape. Empty array
+ * if none exist yet (e.g. a fresh database). Cached for a minute. */
+export const getPublishedProducts = (): Promise<StorefrontProduct[]> => cached("products", loadPublishedProducts);
+
+async function loadPublishedProducts(): Promise<StorefrontProduct[]> {
   const db = await getDb();
   const rows = await db
-    .select(productColumns)
+    .select(listingColumns)
     .from(product)
     .leftJoin(category, eq(product.categoryId, category.id))
     .leftJoin(media, eq(product.featuredImageMediaId, media.id))
     .where(eq(product.status, "published"))
-    .orderBy(product.createdAt);
+    .orderBy(desc(product.createdAt));
 
-  return rows.map(toStorefrontProduct).reverse();
+  return rows.map((row) =>
+    toStorefrontProduct({ ...row, description: null, seoTitle: null, seoDescription: null })
+  );
 }
 
 /** A single published product by slug, or null if not found/not published. */
@@ -285,7 +316,9 @@ export async function getPublishedProductBySlug(slug: string): Promise<Storefron
 
 /** Units sold per product across PAID orders only — pending/failed
  * checkouts never count toward "best seller". */
-export async function getUnitsSoldByProduct(): Promise<Map<string, number>> {
+export const getUnitsSoldByProduct = (): Promise<Map<string, number>> => cached("units-sold", loadUnitsSold);
+
+async function loadUnitsSold(): Promise<Map<string, number>> {
   const db = await getDb();
   const rows = await db
     .select({ productId: orderItem.productId, units: sql<string>`sum(${orderItem.quantity})` })
@@ -308,7 +341,9 @@ export async function getBestSellers(limit: number): Promise<StorefrontProduct[]
 }
 
 /** The newest published journal posts, for the homepage preview. */
-export async function getLatestJournalPosts(limit: number) {
+export const getLatestJournalPosts = (limit: number) => cached(`journal:${limit}`, () => loadLatestJournalPosts(limit));
+
+async function loadLatestJournalPosts(limit: number) {
   const db = await getDb();
   const rows = await db
     .select({

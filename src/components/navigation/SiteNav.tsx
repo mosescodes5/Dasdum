@@ -48,6 +48,19 @@ export function SiteNav() {
     if (searchOpen) searchRef.current?.focus();
   }, [searchOpen]);
 
+  // Mobile menu: Escape closes it and the page behind stops scrolling.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [menuOpen]);
+
   // Close overlays whenever the page changes.
   useEffect(() => {
     setSearchOpen(false);
@@ -79,11 +92,11 @@ export function SiteNav() {
                 <Link
                   href={link.href}
                   aria-current={active ? "page" : undefined}
-                  className="relative block py-1.5 text-[0.74rem] font-medium uppercase tracking-[0.1em] hover:text-gold-text transition-colors"
+                  className="nav-link relative block py-1.5 text-[0.74rem] font-medium uppercase tracking-[0.1em] hover:text-gold-text transition-colors"
                 >
                   {link.label}
                 </Link>
-                {active && <span className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-gold" />}
+                {active && <span className="anim-draw absolute -bottom-0.5 left-0 right-0 h-0.5 bg-gold" />}
               </li>
             );
           })}
@@ -170,8 +183,8 @@ export function SiteNav() {
             </button>
           </div>
           <ul className="container-editorial mt-6 flex flex-col">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href} className="border-b border-white/10">
+            {NAV_LINKS.map((link, i) => (
+              <li key={link.href} style={{ animationDelay: `${0.08 + i * 0.05}s` }} className="anim-rise border-b border-white/10">
                 <Link href={link.href} onClick={() => setMenuOpen(false)} className="block py-4 text-3xl font-black uppercase tracking-tight">
                   {link.label}
                 </Link>

@@ -7,6 +7,7 @@ import { productSchema } from "@/lib/validation/admin-product";
 import { logAdminAction } from "@/lib/auth/audit";
 import { setProductGallery, getProductGallery } from "@/lib/db/catalog";
 
+import { clearsCache } from "@/lib/cache";
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAdmin();
@@ -29,7 +30,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return NextResponse.json({ product: { ...row, featuredImageUrl, galleryImages } });
 }
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function PATCH_handler(request: Request, { params }: { params: Promise<{ id: string }> }) {
   let session;
   try {
     session = await requireAdmin("editor");
@@ -78,7 +79,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function DELETE_handler(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   let session;
   try {
     session = await requireAdmin("manager");
@@ -99,3 +100,6 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = clearsCache(PATCH_handler);
+export const DELETE = clearsCache(DELETE_handler);

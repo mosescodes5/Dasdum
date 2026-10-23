@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SITE } from "@/lib/site";
+import { ArrowUp } from "lucide-react";
+import { Stagger, StaggerItem } from "@/components/motion/Reveal";
 
 const COLUMNS = [
   {
@@ -41,8 +43,8 @@ export function SiteFooter() {
   return (
     <footer className="bg-primary-deep text-white mt-4">
       <div className="container-editorial pt-12 pb-6">
-        <div className="grid grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] gap-8 md:gap-10">
-          <div className="col-span-2 md:col-span-1">
+        <Stagger className="grid grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] gap-8 md:gap-10">
+          <StaggerItem className="col-span-2 md:col-span-1">
             <Link href="/" aria-label="DASDUM home" className="inline-block">
               {/* The wordmark is dark teal, so it sits on a light pill against the navy footer */}
               <Image
@@ -70,24 +72,27 @@ export function SiteFooter() {
                 ))}
               </div>
             )}
-          </div>
+          </StaggerItem>
           {COLUMNS.map((col) => (
-            <div key={col.title}>
+            <StaggerItem key={col.title}>
               <h4 className="text-[0.8rem] tracking-[0.08em] mb-4">{col.title}</h4>
               <ul className="grid gap-2.5 text-sm">
                 {col.links.map((l) => (
                   <li key={l.href}>
-                    <Link href={l.href} className="inline-block text-white/80 transition-colors hover:text-gold">
+                    <Link href={l.href} className="inline-block text-white/80 transition-[color,transform] duration-300 hover:translate-x-1 hover:text-gold">
                       {l.label}
                     </Link>
                   </li>
                 ))}
               </ul>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
-        <div className="mt-10 border-t border-white/15 pt-5 text-[0.8rem] text-white/70">
-          © {new Date().getFullYear()} DASDUM. All rights reserved.
+        </Stagger>
+        <div className="mt-10 flex items-center justify-between gap-4 border-t border-white/15 pt-5 text-[0.8rem] text-white/70">
+          <span>© {new Date().getFullYear()} DASDUM. All rights reserved.</span>
+          <a href="#top" className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-[0.08em] transition-colors hover:text-gold">
+            Back to top <ArrowUp size={14} className="transition-transform duration-300 group-hover:-translate-y-0.5" />
+          </a>
         </div>
       </div>
     </footer>

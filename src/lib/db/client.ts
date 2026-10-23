@@ -27,8 +27,13 @@ function getPool() {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       waitForConnections: true,
-      connectionLimit: 10,
-      maxIdle: 10,
+      // Shared hosting caps how many connections one account may hold open
+      // (often 10–25 across the whole account, including phpMyAdmin). A small
+      // pool is plenty now that storefront reads are cached; raise it with
+      // DB_POOL_SIZE only if your host allows more.
+      connectionLimit: Number(process.env.DB_POOL_SIZE) || 5,
+      maxIdle: Number(process.env.DB_POOL_SIZE) || 5,
+      connectTimeout: 10_000,
       idleTimeout: 60_000,
     });
   }

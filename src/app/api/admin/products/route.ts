@@ -7,6 +7,7 @@ import { productSchema } from "@/lib/validation/admin-product";
 import { logAdminAction } from "@/lib/auth/audit";
 import { setProductGallery } from "@/lib/db/catalog";
 
+import { clearsCache } from "@/lib/cache";
 export async function GET(request: Request) {
   try {
     await requireAdmin();
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
   return NextResponse.json({ products: rows });
 }
 
-export async function POST(request: Request) {
+async function POST_handler(request: Request) {
   let session;
   try {
     session = await requireAdmin("editor");
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true, id });
 }
 
-export async function DELETE(request: Request) {
+async function DELETE_handler(request: Request) {
   let session;
   try {
     session = await requireAdmin("manager");
@@ -115,3 +116,6 @@ export async function DELETE(request: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export const POST = clearsCache(POST_handler);
+export const DELETE = clearsCache(DELETE_handler);

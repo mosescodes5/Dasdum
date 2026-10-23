@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { Minus, Plus, X } from "lucide-react";
 import { useCart } from "./CartContext";
+import { FreeShippingMeter } from "./FreeShippingMeter";
 import { formatMoney as formatGBP } from "@/lib/currency";
 
 
@@ -12,18 +14,31 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
   const activeLines = lines.filter((l) => !l.savedForLater);
   const savedLines = lines.filter((l) => l.savedForLater);
 
+  // While the drawer is open: Escape closes it and the page behind stops scrolling.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+
   return (
     <AnimatePresence>
       {open && (
         <>
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
             className="fixed inset-0 z-40 bg-primary-deep/40"
           />
-          <motion.aside
+          <m.aside
             role="dialog"
             aria-modal="true"
             aria-label="Shopping cart"
@@ -42,14 +57,20 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
 
             <div className="flex-1 overflow-y-auto px-6 py-5">
               {activeLines.length === 0 ? (
-                <p className="text-sm text-muted py-10 text-center">Your cart is empty.</p>
+                <div className="py-14 text-center">
+                  <p className="font-display text-lg text-primary-deep">Your cart is empty</p>
+                  <p className="mt-1 text-sm text-muted">Find something you’ll love.</p>
+                  <Link href="/shop" onClick={onClose} className="btn mt-6">
+                    Start shopping
+                  </Link>
+                </div>
               ) : (
                 <ul className="space-y-6">
                   {activeLines.map((line) => (
                     <li key={line.id} className="flex gap-4">
                       <div className="h-20 w-20 shrink-0 bg-primary/15 overflow-hidden">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {line.imageUrl && <img src={line.imageUrl} alt="" className="h-full w-full object-cover" />}
+                        {line.imageUrl && <img src={line.imageUrl} alt="" decoding="async" className="h-full w-full object-cover" />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <Link href={`/product/${line.slug}`} className="text-sm font-medium hover:text-primary">
@@ -120,6 +141,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
 
             {activeLines.length > 0 && (
               <div className="border-t border-hairline px-6 py-5">
+                <FreeShippingMeter subtotal={subtotal} className="mb-4" />
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted">Subtotal</span>
                   <span className="font-medium">{formatGBP(subtotal)}</span>
@@ -128,7 +150,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 <Link
                   href="/checkout"
                   onClick={onClose}
-                  className="mt-4 block text-center bg-primary-deep text-bg py-3.5 text-sm hover:bg-primary transition-colors"
+                  className="btn mt-4 w-full"
                 >
                   Checkout
                 </Link>
@@ -141,7 +163,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 </Link>
               </div>
             )}
-          </motion.aside>
+          </m.aside>
         </>
       )}
     </AnimatePresence>

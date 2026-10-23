@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
+import { cached, clearCache } from "@/lib/cache";
 import { siteSetting } from "@/lib/db/schema";
 
 // Admin-editable page copy: the homepage "Rooted in craft" section, the
@@ -59,7 +60,9 @@ const KEY = "site_content";
 /** Saved copy merged over the defaults. Falls back to the defaults on a
  * missing row or malformed JSON, and keeps the pillar count at exactly 5
  * so every icon always has a card. */
-export async function getSiteContent(): Promise<SiteContent> {
+export const getSiteContent = (): Promise<SiteContent> => cached("site-content", loadSiteContent);
+
+async function loadSiteContent(): Promise<SiteContent> {
   const db = await getDb();
   const row = (await db.select().from(siteSetting).where(eq(siteSetting.key, KEY)))[0];
   if (!row) return DEFAULT_SITE_CONTENT;
@@ -90,4 +93,5 @@ export async function setSiteContent(content: SiteContent): Promise<void> {
     .insert(siteSetting)
     .values({ key: KEY, value, updatedAt: now })
     .onDuplicateKeyUpdate({ set: { value, updatedAt: now } });
+  clearCache();
 }

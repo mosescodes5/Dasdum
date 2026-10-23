@@ -26,7 +26,7 @@ export type Product = {
   inStock?: boolean;
 };
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const { isWishlisted, toggle } = useWishlist();
   const { addLine } = useCart();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
@@ -52,7 +52,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <article className="group relative overflow-hidden rounded-lg border border-hairline bg-surface transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-primary-deep/40">
-      <div className="relative aspect-square overflow-hidden bg-soft">
+      <div className="skeleton relative aspect-square overflow-hidden">
         <Link href={`/product/${product.slug}`} aria-label={product.name} className="absolute inset-0">
           {product.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- same-origin /media/ URL from local uploads; the built-in optimizer is disabled anyway (see next.config.ts)
@@ -60,7 +60,9 @@ export function ProductCard({ product }: { product: Product }) {
               src={product.imageUrl}
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-700 ease-editorial group-hover:scale-110"
-              loading="lazy"
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "auto"}
+              decoding="async"
             />
           ) : (
             <span className="block h-full w-full bg-soft2/60" />

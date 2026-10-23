@@ -11,7 +11,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
   }
 
   return (
-    <div className="container-editorial py-12">
+    <div className="anim-rise container-editorial py-12">
       <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-10">
         <aside>
           <AccountNav />

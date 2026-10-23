@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { SlidersHorizontal, X } from "lucide-react";
 
 export function MobileFilterDrawer({ children }: { children: React.ReactNode }) {
@@ -19,14 +19,14 @@ export function MobileFilterDrawer({ children }: { children: React.ReactNode }) 
       <AnimatePresence>
         {open && (
           <>
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setOpen(false)}
               className="fixed inset-0 z-40 bg-primary-deep/40"
             />
-            <motion.div
+            <m.div
               role="dialog"
               aria-modal="true"
               initial={{ y: "100%" }}
@@ -48,7 +48,7 @@ export function MobileFilterDrawer({ children }: { children: React.ReactNode }) 
               >
                 Show results
               </button>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>

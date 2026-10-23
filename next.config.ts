@@ -30,6 +30,11 @@ const nextConfig: NextConfig = {
   // full deploy steps (copying public/ and .next/static into place).
   output: "standalone",
 
+  // Gzip responses (the default, stated here so nobody turns it off) and
+  // don't advertise the framework in a response header.
+  compress: true,
+  poweredByHeader: false,
+
   images: {
     // Next's built-in image optimizer needs `sharp`'s native bindings,
     // which aren't reliably available on shared cPanel hosting. Serving

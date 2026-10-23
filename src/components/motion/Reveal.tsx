@@ -1,46 +1,67 @@
 "use client";
 
-import { motion, type Variants } from "motion/react";
+import { useEffect, useRef } from "react";
 
-// Motion rules for the whole site — chosen so it stays smooth on ordinary
-// phones: only opacity and a short upward move (both run on the GPU), each
-// thing animates once when it first scrolls into view, nothing scales, and
-// nothing repaints a large area (no clip-path / blur / parallax).
-const EASE = [0.22, 1, 0.36, 1] as const;
+// Scroll-in animation without a JavaScript animation library: one shared
+// IntersectionObserver adds an "in" class the first time an element scrolls
+// into view, and the CSS in globals.css does the actual fade/rise (opacity
+// and transform only, so it stays smooth on ordinary phones). Each element
+// animates once. Reduced-motion and no-JS visitors just see the content.
 
-export function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -60px 0px" }}
-      transition={{ duration: 0.6, ease: EASE, delay }}
-    >
-      {children}
-    </motion.div>
-  );
+let observer: IntersectionObserver | null = null;
+
+function getObserver(): IntersectionObserver {
+  if (!observer) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in");
+            observer?.unobserve(entry.target);
+          }
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px" }
+    );
+  }
+  return observer;
 }
 
-const container: Variants = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-const item: Variants = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
-};
+function useRevealOnScroll<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      el.classList.add("in");
+      return;
+    }
+    const io = getObserver();
+    io.observe(el);
+    return () => io.unobserve(el);
+  }, []);
+  return ref;
+}
+
+export function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRevealOnScroll<HTMLDivElement>();
+  return (
+    <div ref={ref} className={`reveal ${className}`} style={delay ? { transitionDelay: `${delay}s` } : undefined}>
+      {children}
+    </div>
+  );
+}
 
 /** A grid whose direct <StaggerItem> children fade up one after another. */
-export function Stagger({ children, className }: { children: React.ReactNode; className?: string }) {
+export function Stagger({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRevealOnScroll<HTMLDivElement>();
   return (
-    <motion.div className={className} variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "0px 0px -50px 0px" }}>
+    <div ref={ref} className={`reveal-stagger ${className}`}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
-export function StaggerItem({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <motion.div className={className} variants={item}>
-      {children}
-    </motion.div>
-  );
+export function StaggerItem({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`stagger-item ${className}`}>{children}</div>;
 }

@@ -82,7 +82,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container-editorial py-12">
+    <div className="anim-rise container-editorial py-12">
       <h1 className="font-display text-4xl text-primary-deep">Checkout</h1>
       {testMode && (
         <div role="note" className="mt-4 border border-gold bg-gold/15 px-4 py-3 text-sm text-primary-deep">

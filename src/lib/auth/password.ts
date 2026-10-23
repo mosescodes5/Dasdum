@@ -62,3 +62,21 @@ export async function verifyPassword(password: string, stored: string): Promise<
   for (let i = 0; i < candidate.length; i++) diff |= candidate.charCodeAt(i) ^ hashHex.charCodeAt(i);
   return diff === 0;
 }
+
+// No 0/O, 1/l/I — temporary passwords get read out and retyped.
+const PASSWORD_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+
+/** A random temporary password like `Hk7q-Wm3x-Pd9r-Tz4n` (16 characters,
+ * about 92 bits of randomness). Uses rejection sampling so every character
+ * is equally likely — no modulo bias. */
+export function generatePassword(): string {
+  const limit = 256 - (256 % PASSWORD_ALPHABET.length);
+  const chars: string[] = [];
+  while (chars.length < 16) {
+    const bytes = crypto.getRandomValues(new Uint8Array(32));
+    for (const b of bytes) {
+      if (b < limit && chars.length < 16) chars.push(PASSWORD_ALPHABET[b % PASSWORD_ALPHABET.length]);
+    }
+  }
+  return [0, 4, 8, 12].map((i) => chars.slice(i, i + 4).join("")).join("-");
+}

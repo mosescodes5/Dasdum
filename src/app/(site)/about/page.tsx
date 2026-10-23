@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSiteContent } from "@/lib/site-content";
 
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Reveal } from "@/components/motion/Reveal";
 export const metadata: Metadata = {
   title: "About",
   description: "The story, mission, and philosophy behind DASDUM.",
@@ -14,28 +16,31 @@ export default async function AboutPage() {
   const { about } = await getSiteContent();
 
   return (
-    <div className="container-editorial py-16 max-w-3xl">
-      <span className="gold-rule block mb-5" />
-      <h1 className="font-display text-4xl md:text-5xl text-primary-deep">{about.heading}</h1>
-      <p className="mt-5 text-lg text-muted leading-relaxed">{about.intro}</p>
+    <>
+      <PageHeader eyebrow="Our story" title={about.heading} intro={about.intro} width="3xl" />
+      <div className="container-editorial max-w-3xl py-14">
+        <div className="space-y-12">
+          {about.sections.map((s, i) => (
+            <Reveal key={i}>
+              <section className="grid gap-4 md:grid-cols-[3rem_1fr] md:gap-6">
+                <span className="font-script text-4xl leading-none text-gold-text">{String(i + 1).padStart(2, "0")}</span>
+                <div>
+                  <h2 className="text-xl text-primary-deep">{s.title}</h2>
+                  <p className="mt-3 text-muted leading-relaxed whitespace-pre-line">{s.body}</p>
+                </div>
+              </section>
+            </Reveal>
+          ))}
+        </div>
 
-      <div className="mt-12 space-y-10">
-        {about.sections.map((s, i) => (
-          <section key={i}>
-            <h2 className="font-display text-2xl text-primary-deep">{s.title}</h2>
-            <p className="mt-3 text-muted leading-relaxed whitespace-pre-line">{s.body}</p>
-          </section>
-        ))}
+        <Reveal>
+          <div className="mt-14 border-t border-hairline pt-8">
+            <Link href="/shop" className="btn">
+              Explore the Collection
+            </Link>
+          </div>
+        </Reveal>
       </div>
-
-      <div className="mt-14 border-t border-hairline pt-8">
-        <Link
-          href="/shop"
-          className="inline-block bg-primary-deep text-bg px-7 py-3.5 text-sm hover:bg-primary transition-colors"
-        >
-          Explore the Collection
-        </Link>
-      </div>
-    </div>
+    </>
   );
 }
