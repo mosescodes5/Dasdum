@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Images } from "lucide-react";
 import { DataTable, type Column } from "@/components/admin/DataTable";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { formatMoney as formatGBP } from "@/lib/currency";
@@ -33,6 +33,12 @@ export default function AdminProductsPage() {
       setProducts(data.products);
     }
   }, [q, status]);
+
+  // Lets links like /admin/products?status=draft open pre-filtered.
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("status");
+    if (fromUrl) setStatus(fromUrl);
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(load, 250); // debounce search typing
@@ -72,9 +78,14 @@ export default function AdminProductsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl text-primary-deep">Products</h1>
-        <Link href="/admin/products/new" className="flex items-center gap-1.5 bg-primary-deep text-bg px-4 py-2 text-sm hover:bg-primary">
-          <Plus size={15} /> New product
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/products/bulk" className="flex items-center gap-1.5 border border-primary-deep px-4 py-2 text-sm text-primary-deep hover:bg-soft">
+            <Images size={15} /> Bulk upload photos
+          </Link>
+          <Link href="/admin/products/new" className="flex items-center gap-1.5 bg-primary-deep text-bg px-4 py-2 text-sm hover:bg-primary">
+            <Plus size={15} /> New product
+          </Link>
+        </div>
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
